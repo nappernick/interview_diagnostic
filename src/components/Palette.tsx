@@ -1,0 +1,239 @@
+// src/components/Palette.tsx
+import React from "react";
+import { v4 as uuidv4 } from 'uuid';
+import { Button, VStack, Heading, Divider } from "@chakra-ui/react"; // Added Heading and Divider
+import {CustomNodeModel} from '../types/node'
+
+interface PaletteItem {
+  type: string;
+  label: string;
+  details: string;
+  color: string;
+  category: string; // Added category
+}
+
+export const paletteItems: PaletteItem[] = [
+  // --- Databases ---
+  {
+    category: "Databases",
+    type: "RelationalDB",
+    label: "Relational DB",
+    details: "SQL-based (e.g., MySQL, PostgreSQL, Oracle)",
+    color: "rgb(255, 99, 71)",
+  },
+  {
+    category: "Databases",
+    type: "NoSQL_Document",
+    label: "NoSQL (Document)",
+    details: "MongoDB, CouchDB",
+    color: "rgb(255, 159, 64)",
+  },
+  {
+    category: "Databases",
+    type: "NoSQL_KeyValue",
+    label: "NoSQL (Key-Value)",
+    details: "Redis, Memcached",
+    color: "rgb(255, 205, 86)",
+  },
+  {
+    category: "Databases",
+    type: "NoSQL_WideColumn",
+    label: "NoSQL (Wide-Column)",
+    details: "Cassandra, HBase",
+    color: "rgb(75, 192, 192)",
+  },
+  {
+    category: "Databases",
+    type: "NoSQL_Graph",
+    label: "NoSQL (Graph)",
+    details: "Neo4j, Amazon Neptune",
+    color: "rgb(54, 162, 235)",
+  },
+  {
+    category: "Databases",
+    type: "SearchEngine",
+    label: "Search Engine",
+    details: "Elasticsearch, Solr",
+    color: "rgb(153, 102, 255)",
+  },
+  {
+    category: "Databases",
+    type: "TimeSeriesDB",
+    label: "Time Series DB",
+    details: "InfluxDB, Prometheus",
+    color: "rgb(201, 203, 207)",
+  },
+
+  // --- Caching ---
+    {
+        category: "Caching",
+        type: "Cache_InMemory",
+        label: "In-Memory Cache",
+        details: "Redis, Memcached (can also be a KV store)",
+        color: "rgb(255, 205, 86)"
+    },
+    {
+        category: "Caching",
+        type: "Cache_CDN",
+        label: "CDN",
+        details: "Content Delivery Network (e.g., Cloudflare, Akamai)",
+        color: "rgb(75, 192, 192)"
+    },
+
+  // --- Load Balancers ---
+  {
+    category: "Load Balancers",
+    type: "LoadBalancer_Elastic",
+    label: "Elastic Load Balancer",
+    details: "Dynamically scales (e.g., AWS ELB)",
+    color: "rgb(255, 165, 0)",
+  },
+  {
+    category: "Load Balancers",
+    type: "LoadBalancer_Traditional",
+    label: "Traditional Load Balancer",
+    details: "Static load balancing (e.g., Nginx, HAProxy)",
+    color: "rgb(138, 43, 226)",
+  },
+    {
+        category: "Load Balancers",
+        type: "LoadBalancer_Application",
+        label: "Application Load Balancer",
+        details: "Layer 7, routes based on content",
+        color: "rgb(255, 99, 71)"
+    },
+      {
+        category: "Load Balancers",
+        type: "LoadBalancer_Network",
+        label: "Network Load Balancer",
+        details: "Layer 4, routes based on IP protocol data",
+        color: "rgb(60, 179, 113)"
+    },
+
+  // --- Messaging ---
+    {
+        category: "Messaging",
+        type: "MessageQueue",
+        label: "Message Queue",
+        details: "RabbitMQ, Kafka, SQS",
+        color: "rgb(54, 162, 235)"
+    },
+    {
+        category: "Messaging",
+        type: "PubSub",
+        label: "Pub/Sub System",
+        details: "Redis Pub/Sub, Google Pub/Sub, Kafka",
+        color: "rgb(153, 102, 255)"
+    },
+
+    // --- Servers ---
+    {
+      category: "Servers",
+      type: "WebServer",
+      label: "Web Server",
+      details: "Apache, Nginx",
+      color: 'rgb(106, 90, 205)'
+    },
+    {
+      category: "Servers",
+      type: "AppServer",
+      label: "Application Server",
+      details: "Node.js, Tomcat, Gunicorn",
+      color: 'rgb(255, 140, 0)'
+    },
+
+  // --- Other ---
+    {
+        category: "Other",
+        type: "APIGateway",
+        label: "API Gateway",
+        details: "Handles routing, authentication, rate limiting",
+        color: "rgb(255, 0, 0)"
+    },
+  {
+    category: "Other",
+    type: "Firewall",
+    label: "Firewall",
+    details: "Security, network traffic control",
+    color: "rgb(0, 128, 0)", // Green
+  },
+  {
+    category: "Other",
+    type: "User",
+    label: "User",
+    details: "Represents a client/user",
+    color: "rgb(128, 0, 128)", // Purple
+  },
+    {
+        category: "Other",
+        type: "Microservice",
+        label: "Microservice",
+        details: "Independent, small service",
+        color: "rgb(210, 105, 30)"
+    },
+      {
+        category: "Other",
+        type: "ExternalAPI",
+        label: "External API",
+        details: "Third-party service integration",
+        color: "rgb(0, 0, 255)" // Blue
+    },
+      {
+        category: "Other",
+        type: "BlobStorage",
+        label: "Blob Storage",
+        details: "Object storage for unstructured data (S3, Azure Blob Storage)",
+        color: "rgb(139, 69, 19)" // Brown
+    },
+
+];
+
+interface PaletteProps {
+  onAddNode: (node: CustomNodeModel) => void; // Keep this for typing
+}
+
+const Palette: React.FC<PaletteProps> = ({ onAddNode }) => {
+  // Group items by category
+  const groupedItems: { [category: string]: PaletteItem[] } = {};
+  paletteItems.forEach((item) => {
+    if (!groupedItems[item.category]) {
+      groupedItems[item.category] = [];
+    }
+    groupedItems[item.category].push(item);
+  });
+
+  return (
+    <VStack spacing={3} align="stretch">
+      {Object.keys(groupedItems).map((category) => (
+        <React.Fragment key={category}>
+          <Heading size="md">{category}</Heading>
+          <Divider />
+          {groupedItems[category].map((item) => (
+            <Button
+              key={item.type}
+              draggable // Make the button draggable
+              onDragStart={(event) => {
+                  const data = {
+                      type: item.type,
+                      label: item.label,
+                      color: item.color,
+                      details: item.details,
+                      id: uuidv4(),
+                  };
+                  event.dataTransfer.setData("storm-diagram-node", JSON.stringify(data));
+              }}
+            
+              width="100%"
+              colorScheme="gray"
+              backgroundColor={item.color}
+            >
+              {item.label}
+            </Button>
+          ))}
+        </React.Fragment>
+      ))}
+    </VStack>
+  );
+};
+
+export default Palette;

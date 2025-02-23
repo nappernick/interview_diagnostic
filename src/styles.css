@@ -1,0 +1,29 @@
+/* styles.css */
+.diagram-container {
+  width: 100%;
+  height: 600px;
+  background: #f0f0f0;
+  position: relative;
+}
+
+.default-node {
+  border: 1px solid black;
+  background: rgb(192,255,0);
+  position: relative;
+}
+
+canvas, .css-12q0bj3, [class*="css-"] {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  border: 1px solid green !important;
+}
+
+[class*="node"] {
+  visibility: visible !important;
+  display: block !important;
+  overflow: visible !important;
+  min-width: 100px !important;
+  min-height: 40px !important;
+  border: 1px dashed blue !important;
+}

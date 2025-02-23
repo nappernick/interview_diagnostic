@@ -1,0 +1,439 @@
+{
+  "coding_problems": [
+    {
+      "id": "be_1",
+      "title": "Review Text Processing Pipeline",
+      "difficulty": "intermediate",
+      "category": "data_processing",
+      "topics": ["string_manipulation", "data_structures"],
+      "company_context": "Similar to Yelp's review processing system",
+      "problem_statement": "Design a class that processes review text with these requirements:\n      - Split reviews into sentences (split on '.', '!', '?')\n      - Remove duplicate sentences within the same review\n      - Maintain the original order of unique sentences\n- Handle edge cases (empty reviews, multiple punctuation marks)",
+      "input_format": "review_text (string)",
+      "output_format": "List of unique sentences in order",
+      "test_cases": [
+        {
+          "input": "Great food! The service was amazing. The food was great. Amazing service!",
+          "expected": ["Great food!", "The service was amazing", "The food was great", "Amazing service!"],
+          "description": "Basic case with duplicates"
+        }
+      ],
+      "follow_up": [
+        "How would you handle very large reviews?",
+        "How would you detect similar but not identical sentences?",
+        "How would you parallelize this for multiple reviews?"
+      ]
+    },
+    {
+      "id": "be_2",
+      "title": "Request Rate Limiter",
+      "difficulty": "intermediate",
+      "category": "backend_systems",
+      "topics": ["hash_maps", "queues"],
+      "problem_statement": "Implement a rate limiter that restricts API requests:\n- Each user is limited to N requests per M seconds\n- Must handle concurrent requests\n- Should be memory efficient for many users",
+      "follow_up": [
+        "How would you handle distributed rate limiting?",
+        "How would you expire old data?",
+        "How would you handle different limits for different endpoints?"
+      ]
+    },
+    {
+      "id": "graph_1",
+      "title": "Business Category Relationships",
+      "difficulty": "intermediate",
+      "category": "graph_traversal",
+      "topics": ["DFS", "adjacency_list"],
+      "problem_statement": "Given a dictionary of business categories where each category points to its parent categories, write a function to detect cycles and return all ancestor categories for a given category.",
+      "example_input": {"Italian": ["Restaurant"], "Pizza": ["Italian", "Fast Food"], "Fast Food": ["Restaurant"], "Restaurant": []},
+      "follow_up": ["How would you handle invalid category names?", "How would you optimize for repeated queries?", "How would you handle a very deep hierarchy?"]
+    },
+    {
+      "id": "graph_2",
+      "title": "Review Connection Components",
+      "difficulty": "intermediate",
+      "category": "graph_analysis",
+      "topics": ["BFS", "connected_components"],
+      "problem_statement": "Group reviews into connected components based on similarity scores above a threshold. Return the size of each component.",
+      "example_input": {"reviews": ["Great pizza", "Best pizza", "Bad service"], "threshold": 0.7, "similarities": {"0,1": 0.8, "1,2": 0.3, "0,2": 0.2}},
+      "test_cases": [{"input": {"reviews": ["A", "B", "C"], "scores": {"A,B": 0.8}, "threshold": 0.7}, "expected": [2, 1]}]
+    },
+    {
+      "id": "graph_3",
+      "title": "Business Recommendation Path",
+      "difficulty": "advanced",
+      "category": "graph_shortest_path",
+      "topics": ["Dijkstra", "priority_queue"],
+      "problem_statement": "Find the strongest recommendation path between two businesses where edge weights represent customer correlation. Return path with highest minimum correlation.",
+      "example_input": {"edges": [["BusinessA", "BusinessB", 0.9], ["BusinessB", "BusinessC", 0.7]], "start": "BusinessA", "end": "BusinessC"}
+    },
+    {
+      "id": "ds_1",
+      "title": "Review Cache System",
+      "difficulty": "intermediate",
+      "category": "data_structures",
+      "topics": ["LRU_cache", "hash_map"],
+      "problem_statement": "Implement a fixed-size LRU cache for business reviews that supports efficient updates and evicts least recently accessed reviews when full.",
+      "operations": ["put(review_id, review)", "get(review_id)", "update(review_id, new_review)", "evict_lru()"]
+    },
+    {
+      "id": "ds_2",
+      "title": "Review Text Trie",
+      "difficulty": "intermediate",
+      "category": "data_structures",
+      "topics": ["trie", "string_search"],
+      "problem_statement": "Implement a trie-based system to store and search common review phrases, track frequencies, and return top N most frequent phrases with a given prefix.",
+      "operations": ["insert(phrase)", "search(prefix)", "get_top_n(prefix, n)"]
+    },
+    {
+      "id": "graph_4",
+      "title": "Business Dependency Resolution",
+      "difficulty": "advanced",
+      "category": "graph_topological_sort",
+      "topics": ["topological_sort", "cycle_detection"],
+      "problem_statement": "Given business updates and their dependencies, determine if all updates can be applied and in what order. Return null if cycles exist.",
+      "example_input": {"update_hours": ["verify_owner"], "update_menu": ["verify_owner"], "verify_owner": []}
+    },
+    {
+      "id": "ds_3",
+      "title": "Review Score Aggregator",
+      "difficulty": "intermediate",
+      "category": "data_structures",
+      "topics": ["heap", "sliding_window"],
+      "problem_statement": "Design a data structure that maintains rolling averages of reviews, returns top K businesses by recent score, and handles updates/deletions.",
+      "operations": ["add_review(business_id, score, timestamp)", "get_top_k(k)", "update_review(review_id, new_score)", "get_average(business_id, time_window)"]
+    }
+  ],
+  "skill_assessment": {
+    "levels": {
+      "entry": ["graph_1", "ds_1"],
+      "intermediate": ["graph_2", "ds_2", "graph_4"],
+      "advanced": ["graph_3", "ds_3"]
+    },
+    "core_competencies": {
+      "graph_traversal": ["DFS", "BFS", "cycle_detection"],
+      "data_structures": ["hash_map", "heap", "trie"],
+      "problem_solving": ["edge_cases", "optimization", "scalability"]
+    }
+  },
+  "system_design_questions": [
+    {
+      "id": "sd_100",
+      "title": "Design a Live Chat Service",
+      "difficulty": "advanced",
+      "context": "Real-time chat for Yelp users to message businesses or other users.",
+      "requirements": {
+        "functional": [
+          "Real-time messaging between users",
+          "Notify user when a new message arrives",
+          "Allow chat history retrieval"
+        ],
+        "non_functional": [
+          "Handle 10k concurrent active chats",
+          "End-to-end latency < 100ms per message",
+          "99.99% availability"
+        ]
+      },
+      "phases": [
+        {
+          "name": "Requirements",
+          "description": "List out the functional and non-functional needs, confirm scope",
+          "prompts": [
+            {
+              "prompt_id": "req_phase_q1",
+              "type": "short_text",
+              "question_text": "Identify key scale constraints for the chat service."
+            },
+            {
+              "prompt_id": "req_phase_q2",
+              "type": "multi_select",
+              "question_text": "Which non-functional requirements are most critical?",
+              "options": [
+                { "value": "low_latency", "label": "Low latency" },
+                { "value": "eventual_consistency", "label": "Eventual consistency (1 minute)" },
+                { "value": "high_availability", "label": "High availability" },
+                { "value": "support_moderation", "label": "Built-in chat moderation" }
+              ],
+              "correct_answers": ["low_latency", "high_availability"]
+            }
+          ]
+        },
+        {
+          "name": "Architecture",
+          "description": "Propose a high-level design, including data flow, servers, etc.",
+          "prompts": [
+            {
+              "prompt_id": "arch_q1",
+              "type": "radio",
+              "question_text": "Pick the best approach for real-time updates:",
+              "options": [
+                { "value": "polling", "label": "Clients poll every 2s for new messages" },
+                { "value": "websockets", "label": "Use WebSockets for push-based updates" },
+                { "value": "long_poll", "label": "Use HTTP long-polling" }
+              ],
+              "correct_answers": ["websockets"]
+            },
+            {
+              "prompt_id": "arch_q2",
+              "type": "diagram",
+              "prompt": "Sketch or upload your architecture diagram (clients, chat service, DB)."
+            }
+          ]
+        },
+        {
+          "name": "Implementation Detail",
+          "description": "Delve into data structures or code for storing & retrieving chat messages",
+          "prompts": [
+            {
+              "prompt_id": "impl_q1",
+              "type": "code_completion",
+              "question_text": "Complete the function that inserts a message into the chat storage.",
+              "starter_code": "function storeMessage(chatId, sender, message) {}",
+              "expected_solution": "function storeMessage(chatId, sender, message) {}"
+            }
+          ]
+        },
+        {
+          "name": "Scalability",
+          "description": "How to scale for 10x traffic and remain <100ms latency?",
+          "prompts": [
+            {
+              "prompt_id": "scale_scenario",
+              "type": "scenario_based",
+              "prompt": "Traffic spikes 10x. Outline your approach to maintain real-time performance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sd_2",
+      "title": "Design Yelp's Photo Storage Service",
+      "difficulty": "intermediate",
+      "context": "Backend service to handle photo uploads and serving.",
+      "requirements": {
+        "functional": ["Upload photos", "Generate thumbnails", "Bulk uploads", "Photo deletion"],
+        "non_functional": ["Handle 500 uploads/sec", "<200ms latency", "99.99% availability", "Max 20MB photos"]
+      },
+      "options": [
+        "Centralized monolith with direct file storage",
+        "AWS S3 + CloudFront + background image processing",
+        "Use a relational DB for storing binary data"
+      ]
+    },
+    {
+      "id": "sd_9",
+      "title": "Design a Live Chat Service for Yelp Users",
+      "difficulty": "advanced",
+      "context": "A new feature to let users chat with business owners or other users in real time.",
+      "design_phases": [
+        {
+          "name": "Requirements Analysis",
+          "prompts": [
+            {
+              "prompt_id": "req_chat_fun",
+              "type": "short_text",
+              "question_text": "List the functional requirements (messaging, online indicators, etc.)"
+            },
+            {
+              "prompt_id": "req_chat_non_fun",
+              "type": "multi_select",
+              "question_text": "Select the most critical non-functional requirements for real-time chat.",
+              "options": [
+                { "text": "Low latency (<50ms) per message" },
+                { "text": "Eventual consistency over 1 minute" },
+                { "text": "High throughput (10k messages/sec)" },
+                { "text": "GraphQL-based interface required" },
+                { "text": "5 nines availability (99.999%)" }
+              ],
+              "correct_answers": [0, 2, 4] 
+            }
+          ]
+        },
+        {
+          "name": "High-Level Architecture",
+          "prompts": [
+            {
+              "prompt_id": "arch_chat",
+              "type": "diagram",
+              "prompt": "Draw or upload a diagram showing the messaging flow between client, server, database, and optional queue."
+            }
+          ]
+        },
+        {
+          "name": "Implementation Detail",
+          "prompts": [
+            {
+              "prompt_id": "code_snippet",
+              "type": "code_completion",
+              "question_text": "Complete the function that sends a chat message to the correct user channel using in-memory pub/sub.",
+              "starter_code": "function sendMessage(senderId, receiverId, message) {\n  // TODO\n}",
+              "expected_solution": "function sendMessage(senderId, receiverId, message) {\n  // Example solution using a pub-sub library\n  // pubSub.publish(`chat-${receiverId}`, { sender: senderId, msg: message });\n}"
+            }
+          ]
+        },
+        {
+          "name": "Scalability Scenario",
+          "prompts": [
+            {
+              "prompt_id": "scenario_scale_2x",
+              "type": "scenario_based",
+              "prompt": "Traffic doubles overnight. Outline how you scale horizontally. Where do you add load balancers?",
+              "answer_format": "short_text"
+            }
+          ]
+        }
+      ],
+      "evaluation_metadata": {
+        "requirements_analysis": {
+          "id": "5",
+          "max_score": 5,
+          "criteria": [
+            { "score": 1, "description": "Barely identifies real-time constraint." },
+            { "score": 3, "description": "Covers low-latency, concurrency, partial mention of availability." },
+            { "score": 5, "description": "Full set of functional + non-functional with clarity on scale, latency, reliability." }
+          ]
+        },
+        "system_architecture": {
+          "max_score": 5,
+          "criteria": [
+            { "score": 3, "description": "At least mentions client, server, DB, basic flow." },
+            { "score": 5, "description": "Detailed architecture with queue or pub-sub for real-time updates, robust approach." }
+          ]
+        }
+      }
+    }
+    
+  ],
+    "system_design_assessment": {
+      "core_competencies": {
+        "requirements_analysis": {
+          "skills": [
+            "Functional requirement extraction",
+            "Non-functional requirement identification",
+            "Scale estimation",
+            "Constraint identification"
+          ],
+          "evaluation_criteria": {
+            "1": "Only identifies basic features",
+            "3": "Extracts both functional and non-functional requirements",
+            "5": "Comprehensive analysis including scale, constraints, and edge cases"
+          }
+        },
+        "data_modeling": {
+          "skills": [
+            "Schema design",
+            "Storage choice (SQL vs NoSQL)",
+            "Data access patterns",
+            "Indexing strategy"
+          ],
+          "evaluation_criteria": {
+            "1": "Basic table design only",
+            "3": "Appropriate storage choices with indexing",
+            "5": "Optimized schema with clear understanding of access patterns and trade-offs"
+          }
+        },
+        "system_architecture": {
+          "skills": [
+            "Service decomposition",
+            "API design",
+            "Communication patterns",
+            "Load balancing"
+          ],
+          "evaluation_criteria": {
+            "1": "Monolithic design",
+            "3": "Basic service separation with clear interfaces",
+            "5": "Well-thought-out microservices with appropriate communication patterns"
+          }
+        },
+        "scalability": {
+          "skills": [
+            "Horizontal vs Vertical scaling",
+            "Caching strategies",
+            "Database sharding",
+            "Load distribution"
+          ],
+          "evaluation_criteria": {
+            "1": "Basic scaling mentions",
+            "3": "Concrete scaling strategies",
+            "5": "Comprehensive scaling approach with trade-offs"
+          }
+        },
+        "reliability": {
+          "skills": [
+            "Fault tolerance",
+            "Data consistency",
+            "Backup strategies",
+            "Monitoring"
+          ],
+          "evaluation_criteria": {
+            "1": "Basic error handling",
+            "3": "Redundancy and backup plans",
+            "5": "Comprehensive reliability strategy with monitoring"
+          }
+        }
+      },
+      "assessment_scenarios": [
+        {
+          "id": "sd_1",
+          "title": "Design a Review Processing Pipeline",
+          "scenario": "Design a system that ingests, processes, and serves business reviews at Yelp scale",
+          "key_requirements": [
+            "Handle 1000 reviews/second",
+            "Support text and image content",
+            "Provide real-time analytics",
+            "Maintain review history"
+          ],
+          "evaluation_focus": [
+            "data_modeling",
+            "scalability",
+            "reliability"
+          ],
+          "follow_up_questions": [
+            "How would you handle spam detection?",
+            "How would you implement content moderation?",
+            "How would you handle sudden traffic spikes?"
+          ]
+        }
+      ],
+      "interview_structure": {
+        "duration_minutes": 45,
+        "phases": [
+          {
+            "name": "Requirements Gathering",
+            "duration_minutes": 5,
+            "key_objectives": [
+              "Clarify scope",
+              "Establish scale",
+              "Identify constraints"
+            ]
+          },
+          {
+            "name": "High-Level Design",
+            "duration_minutes": 15,
+            "key_objectives": [
+              "System components",
+              "Data flow",
+              "API design"
+            ]
+          },
+          {
+            "name": "Deep Dive",
+            "duration_minutes": 15,
+            "key_objectives": [
+              "Critical component details",
+              "Scaling approach",
+              "Edge cases"
+            ]
+          },
+          {
+            "name": "Follow-up Discussion",
+            "duration_minutes": 10,
+            "key_objectives": [
+              "Trade-off analysis",
+              "Alternative approaches",
+              "Future improvements"
+            ]
+          }
+        ]
+      }
+    }
+}

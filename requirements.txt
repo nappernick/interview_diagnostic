@@ -1,0 +1,7 @@
+@projectstorm/react-canvas-core
+@projectstorm/react-diagrams
+@projectstorm/react-diagrams-routing
+@projectstorm/geometry
+uuid
+@projectstorm/react-diagrams-core
+@emotion/styled
