@@ -6,21 +6,21 @@ import time
 from flask import Flask, request, redirect, url_for, render_template_string, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlite3 import connect, Error
-from flasgger import Swagger
+from flasgger import Swagger # type: ignore
 from uuid import uuid4
 
-app = Flask(__name__)
 
-# Configuration
-DATA_FILE = 'diagnostic_data.json'
-DATABASE = 'diagnostics.db'
+app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///diagnostics.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+Model = db.Model
 
 ########################################################
 # 0. Minimal Templates (Inline for Demo)
 ########################################################
+# Configuration
+DATA_FILE = 'diagnostic_data.json'
+DATABASE = 'diagnostics.db'
 
 TEMPLATES = {
     "index": """
@@ -35,7 +35,7 @@ TEMPLATES = {
   <ul>
     {% for sc in scenarios %}
       <li>
-        <a href="{{ url_for('show_step', scenario_id=sc.get("id", uuid4), step_num=1) }}">
+        <a href="{{ url_for('show_step', scenario_id=sc.id, # type: ignore step_num=1) }}">
           {{ sc.title }}
         </a> - {{ sc.description }}
       </li>
@@ -92,14 +92,14 @@ TEMPLATES = {
 # 1. Models (SQLAlchemy)
 ########################################################
 
-class Scenario(db.Model):
+class Scenario(Model): # type: ignore
     __tablename__ = "scenarios"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     steps = db.relationship("Step", backref="scenario", lazy=True)
 
-class Step(db.Model):
+class Step(db.Model): # type: ignore
     __tablename__ = "steps"
     id = db.Column(db.Integer, primary_key=True)
     scenario_id = db.Column(db.Integer, db.ForeignKey("scenarios.id"), nullable=False)
@@ -108,7 +108,7 @@ class Step(db.Model):
     prompt_text = db.Column(db.Text)
     responses = db.relationship("Response", backref="step", lazy=True)
 
-class Response(db.Model):
+class Response(db.Model): # type: ignore
     __tablename__ = "responses"
     id = db.Column(db.Integer, primary_key=True)
     scenario_id = db.Column(db.Integer, nullable=False)
@@ -116,7 +116,7 @@ class Response(db.Model):
     user_response_text = db.Column(db.Text)
 
 # New models for coding and design results
-class CodingResult(db.Model):
+class CodingResult(db.Model): # type: ignore
     __tablename__ = "coding_results"
     id = db.Column(db.Integer, primary_key=True)
     problem_id = db.Column(db.String(200), nullable=False)
@@ -124,7 +124,7 @@ class CodingResult(db.Model):
     total = db.Column(db.Integer, default=0)
     execution_time = db.Column(db.Float, default=0.0)
 
-class DesignResult(db.Model):
+class DesignResult(db.Model): # type: ignore
     __tablename__ = "design_results"
     id = db.Column(db.Integer, primary_key=True)
     question_id = db.Column(db.String(200), nullable=False)
@@ -173,7 +173,7 @@ def setup_db_once():
             ]
             for step_num, title, prompt in steps_data1:
                 step_obj = Step(
-                    scenario_id=scenario1.get("id", uuid4),
+                    scenario_id=scenario1.id, # type: ignore
                     step_number=step_num,
                     title=title,
                     prompt_text=prompt
@@ -201,7 +201,7 @@ def setup_db_once():
             ]
             for step_num, title, prompt in steps_data2:
                 step_obj = Step(
-                    scenario_id=scenario2.get("id", uuid4),
+                    scenario_id=scenario2.id, # type: ignore
                     step_number=step_num,
                     title=title,
                     prompt_text=prompt
@@ -229,7 +229,7 @@ def setup_db_once():
             ]
             for step_num, title, prompt in steps_data3:
                 step_obj = Step(
-                    scenario_id=scenario3.get("id", uuid4),
+                    scenario_id=scenario3.id, # type: ignore
                     step_number=step_num,
                     title=title,
                     prompt_text=prompt
@@ -257,7 +257,7 @@ def setup_db_once():
             ]
             for step_num, title, prompt in steps_data4:
                 step_obj = Step(
-                    scenario_id=scenario4.get("id", uuid4),
+                    scenario_id=scenario4.id, # type: ignore
                     step_number=step_num,
                     title=title,
                     prompt_text=prompt
@@ -285,7 +285,7 @@ def setup_db_once():
             ]
             for step_num, title, prompt in steps_data5:
                 step_obj = Step(
-                    scenario_id=scenario5.get("id", uuid4),
+                    scenario_id=scenario5.id, # type: ignore
                     step_number=step_num,
                     title=title,
                     prompt_text=prompt
@@ -880,7 +880,7 @@ def get_wizard_steps(scenario_id):
     """
     try:
         steps = Step.query.filter_by(scenario_id=scenario_id).order_by(Step.step_number.asc()).all()
-        results = [{"id": st.get("id", uuid4), "step_number": st.step_number, "title": st.title, "prompt_text": st.prompt_text} for st in steps]
+        results = [{"id": st.id, "step_number": st.step_number, "title": st.title, "prompt_text": st.prompt_text} for st in steps]
         return jsonify(results)
     except Exception as e:
         print(e)
@@ -980,7 +980,7 @@ def wizard_summary(scenario_id):
         for st in steps:
             resp_list = [r.user_response_text for r in st.responses]
             summary.append({
-                "step_id": st.get("id", uuid4),
+                "step_id": st.id, # type: ignore
                 "step_number": st.step_number,
                 "title": st.title,
                 "responses": resp_list

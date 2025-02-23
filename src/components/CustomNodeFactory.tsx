@@ -2,7 +2,7 @@ import React from "react";
 import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { CustomNodeModel } from "../types/node";
-import { CustomNodeWidget } from "../components/CustomNodeWidget"; // Ensure correct path
+import { CustomNodeWidget } from "../components/CustomNodeWidget"; // Import the widget
 
 export class CustomNodeFactory extends AbstractReactFactory<CustomNodeModel, DiagramEngine> {
   private nodeType: string;

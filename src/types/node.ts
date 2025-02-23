@@ -1,26 +1,24 @@
-// src/types/node.ts
 import { v4 as uuidv4 } from "uuid";
-import { DefaultNodeModel, DefaultNodeModelOptions } from "@projectstorm/react-diagrams";
+import { DefaultNodeModel, DefaultNodeModelOptions, DefaultPortModel } from "@projectstorm/react-diagrams";
 
-/** Add custom fields (type, details, annotation, etc.) */
 export interface CustomNodeOptions extends DefaultNodeModelOptions {
-  type?: string;       // "RelationalDB" or "NoSQL_Document", etc.
-  details?: string;    // A short description
-  annotation?: string; // Possibly user-edited
+  type?: string;
+  details?: string;
+  annotation?: string;
   x?: number;
   y?: number;
-  id?: string;         // We'll generate if not provided
+  id?: string;
 }
 
 export class CustomNodeModel extends DefaultNodeModel {
   constructor(options: CustomNodeOptions) {
-    // If no ID given, generate
     if (!options.id) {
       options.id = uuidv4();
     }
-    // Pass the "type" to the underlying model so the engine can pick the correct factory
     super(options);
-    // If x,y provided, set position right away
+    // Initialize ports
+    this.addPort(new DefaultPortModel({ in: true, name: "in" }));
+    this.addPort(new DefaultPortModel({ in: false, name: "out" }));
     if (typeof options.x === "number" && typeof options.y === "number") {
       this.setPosition(options.x, options.y);
     }

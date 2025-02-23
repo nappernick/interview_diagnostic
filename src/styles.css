@@ -6,24 +6,38 @@
   position: relative;
 }
 
-.default-node {
-  border: 1px solid black;
-  background: rgb(192,255,0);
-  position: relative;
-}
-
-canvas, .css-12q0bj3, [class*="css-"] {
+/* Target the canvas element */
+/* canvas, .css-12q0bj3, [class*="css-"] {
   width: 100% !important;
   height: 100% !important;
   overflow: visible !important;
   border: 1px solid green !important;
-}
+} */
 
-[class*="node"] {
+/* Target the node elements */
+[class*="node "] {
   visibility: visible !important;
   display: block !important;
   overflow: visible !important;
   min-width: 100px !important;
   min-height: 40px !important;
   border: 1px dashed blue !important;
+  z-index: 9999;
 }
+/* .default-node, canvas, .css-12q0bj3, [class*="css-"] {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  position: relative;
+  z-index: 10;
+} */
+
+/* .custom-node {
+  width: 100% !important;
+  height: 100% !important;
+  visibility: visible !important;
+  display: block !important;
+  overflow: visible !important;
+  border: 1px dashed blue !important;
+  z-index: 9999;
+} */

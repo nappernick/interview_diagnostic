@@ -1,245 +1,209 @@
-// src/App.tsx
-import React, { useEffect, useMemo, useRef } from "react";
-import createEngine, {
-  DiagramModel,
-  NodeModel,
-  CanvasWidget,
-  DefaultNodeFactory,
-  DefaultLinkFactory,
-  NodeWidget,
-  PortWidget,
-  PortModel,
-  PortModelAlignment,
-} from "@projectstorm/react-diagrams";
-import "./styles.css";
+import React, { useState, useEffect } from 'react';
+import {
+  ChakraProvider,
+  Container,
+  Heading,
+  ButtonGroup,
+  Button,
+  Box,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  extendTheme,
+  Spinner,
+  VStack,
+  Text
+} from '@chakra-ui/react';
+import CodeChallenge from "./components/CodeChallenge";
+import SystemDesign from "./components/SystemDesign";
+import DiagnosticReportComponent from "./components/DiagnosticReport";
+import WizardApp from "./components/WizardApp";
+import GuidedPrompts from './components/GuidedPrompts';
+import RevisionSummary from './components/RevisionSummary';
+import ArchitectureDiagram from './components/ArchitectureDiagram';
+import MinimalDiagram from './components/MinimalDiagram';
+import { fetchCodingChallengesByLevel, CodingProblem, fetchCodingChallenge } from './api';
 
-// Custom Node Model
-interface CustomNodeModelOptions {
-  name: string;
-  color: string;
-}
+const theme = extendTheme({
+  colors: {
+    brand: {
+      500: '#FF1A1A',
+      600: '#E60000',
+    },
+  },
+  components: {
+    Button: {
+      defaultProps: {
+        colorScheme: 'red',
+      },
+    },
+  },
+});
 
-class CustomNodeModel extends NodeModel {
-  private name: string;
-  private color: string;
+type Module = "coding" | "design" | "report" | "wizard" | "guided-prompts" | "revision-summary" | "architecture-diagram" | "revision";
 
-  constructor(options: CustomNodeModelOptions) {
-    super({ type: "custom-node" });
-    this.name = options.name;
-    this.color = options.color;
-    console.log("CustomNodeModel created:", this.name);
-  }
 
-  getName(): string {
-    return this.name;
-  }
-
-  getColor(): string {
-    return this.color;
-  }
-
-  addOutPort(label: string): PortModel {
-    const port = new PortModel({
-      type: "default",
-      name: label,
-      alignment: PortModelAlignment.RIGHT,
-    });
-    this.addPort(port);
-    console.log("Added port:", label);
-    return port;
-  }
-
-  serialize() {
-    return {
-      ...super.serialize(),
-      name: this.name,
-      color: this.color,
-    };
-  }
-
-  deserialize(event: any): void {
-    super.deserialize(event);
-    this.name = event.data.name;
-    this.color = event.data.color;
-  }
-}
-
-// Error Boundary Component
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
-
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { hasError: false, error: null };
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.error("Error in diagram:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div>
-          Something went wrong with the diagram: {this.state.error?.message}
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-// Custom Node Factory
-class CustomNodeFactory extends DefaultNodeFactory {
-  constructor() {
-    super();
-    this.type = "custom-node";
-    console.log("CustomNodeFactory initialized");
-  }
-
-  generateReactWidget(event: { model: CustomNodeModel }): JSX.Element {
-    console.log("Generating custom node widget for:", event.model.getName());
-    return <CustomNodeWidget node={event.model} diagramEngine={this.engine} />;
-  }
-}
-
-// Custom Node Widget
-class CustomNodeWidget extends NodeWidget {
-  state = { isHovered: false };
-  maxRetries = 3;
-  retryCount = 0;
-  nodeRef: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>();
-
-  handleMouseEnter = () => this.setState({ isHovered: true });
-  handleMouseLeave = () => this.setState({ isHovered: false });
-
-  componentDidMount() {
-    const tryMount = () => {
-      if (this.nodeRef.current) {
-        // @ts-ignore
-        this.ref = this.nodeRef.current;
-        // Skip super.componentDidMount() to avoid getBoundingClientRect error
-        this.retryCount = 0;
-        console.log("Custom node mounted:", (this.props.node as CustomNodeModel).getName());
-      } else if (this.retryCount < this.maxRetries) {
-        console.warn(
-          `NodeWidget ref is null, retrying (${this.retryCount + 1}/${this.maxRetries})`
-        );
-        this.retryCount += 1;
-        setTimeout(tryMount, 100);
-      } else {
-        console.error("Max retries reached; DOM element not available.");
-      }
-    };
-    tryMount();
-  }
-
-  render() {
-    const { node, diagramEngine: engine } = this.props;
-    const typedNode = node as CustomNodeModel;
-    const backgroundColor = this.state.isHovered ? "yellow" : typedNode.getColor();
-    console.log("Rendering CustomNodeWidget for:", typedNode.getName());
-    return (
-      <div
-        ref={this.nodeRef}
-        className={`default-node ${typedNode.isSelected() ? "selected" : ""}`}
-        style={{
-          position: "relative",
-          width: 100,
-          height: 40,
-          background: backgroundColor,
-          border: "1px solid black",
-        }}
-        onMouseEnter={this.handleMouseEnter}
-        onMouseLeave={this.handleMouseLeave}
-      >
-        <div className="title">
-          <div className="name">{typedNode.getName()}</div>
-        </div>
-        {Object.values(typedNode.getPorts()).map((port) => (
-          <PortWidget engine={engine} port={port} key={port.getID()}>
-            <div
-              style={{
-                position: "absolute",
-                top: 10,
-                right: -8,
-                width: 10,
-                height: 10,
-                backgroundColor: "black",
-              }}
-            />
-          </PortWidget>
-        ))}
-      </div>
-    );
-  }
-}
-
-// Main App Component
-const App = () => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  const { engine, model } = useMemo(() => {
-    console.log("Initializing engine and model");
-    const engine = createEngine();
-    const model = new DiagramModel();
-
-    // Configure engine
-    engine.getNodeFactories().deregisterFactory("default");
-    engine.getNodeFactories().registerFactory(new CustomNodeFactory());
-    engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
-    // Skip deregistering PathFindingLinkFactory to avoid crash
-    console.log("Factories registered:", engine.getNodeFactories());
-
-    const node = new CustomNodeModel({
-      name: "Hello World",
-      color: "rgb(192,255,0)",
-    });
-    node.setPosition(50, 50);
-    node.addOutPort("Out");
-
-    model.addNode(node);
-    engine.setModel(model);
-
-    console.log("Model set with node:", node.getName());
-    return { engine, model };
-  }, []);
+const App: React.FC = () => {
+  const [codingProblems, setCodingProblems] = useState<CodingProblem[]>([]);
+  const [defaultProblem, setDefaultProblem] = useState<CodingProblem | null>(null);
+  const [loadingDefault, setLoadingDefault] = useState(true);
+  const [currentModule, setCurrentModule] = useState<Module>("coding");
+  const [guidedPromptResponses, setGuidedPromptResponses] = useState<{ [id: number]: string }>( {});
+  const [revisionEntries, setRevisionEntries] = useState<
+    { id: number; question: string; answer: string }[]
+  >([]);
 
   useEffect(() => {
-    if (containerRef.current) {
-      setTimeout(() => {
-        console.log("Repainting canvas");
-        engine.repaintCanvas();
-        console.log(
-          "Container dimensions:",
-          containerRef.current?.offsetWidth,
-          containerRef.current?.offsetHeight
-        );
-        console.log("Registered Node Factories:", engine.getNodeFactories());
-        console.log("Model layers:", model.getLayers());
-        console.log("Nodes in model:", model.getNodes());
-      }, 500);
+    const getDefaultProblem = async () => {
+      try {
+        const problem = await fetchCodingChallenge();
+        setDefaultProblem(problem);
+      } catch (error) {
+        console.error("Failed to fetch default coding challenge:", error);
+      } finally {
+        setLoadingDefault(false);
+      }
+    };
+    getDefaultProblem();
+  }, []);
+
+  const handleCodingLevelSelect = async (level: 'entry' | 'intermediate' | 'advanced') => {
+    try {
+      const problems = await fetchCodingChallengesByLevel(level);
+      setCodingProblems(problems);
+    } catch (error) {
+      console.error("Failed to fetch coding challenges:", error);
     }
-  }, [engine]);
+  };
+
+  const handleGuidedPromptsComplete = (responses: { [id: number]: string }) => {
+    const newEntries = Object.entries(responses).map(([id, answer]) => ({
+      id: parseInt(id, 10),
+      question: `Question ${id}`,
+      answer,
+    }));
+    setRevisionEntries(newEntries);
+    setGuidedPromptResponses(responses);
+    setCurrentModule("revision-summary");
+  };
+
+  const handleRevisionSave = (id: number, updatedAnswer: string) => {
+    setRevisionEntries(prevEntries =>
+      prevEntries.map(entry =>
+        entry.id === id ? { ...entry, answer: updatedAnswer } : entry
+      )
+    );
+  };
 
   return (
-    <div
-      className="diagram-container"
-      ref={containerRef}
-      style={{ width: "100%", height: "600px" }}
-    >
-      <ErrorBoundary>
-        <CanvasWidget
-          engine={engine}
-          // @ts-ignore: Suppress style prop error
-          style={{ width: "100%", height: "100%" }}
-        />
-      </ErrorBoundary>
-    </div>
+    <ChakraProvider theme={theme}>
+      <Container maxW="container.lg" py={8}>
+        <Box bg="white" borderRadius="lg" boxShadow="lg" p={6}>
+          <Heading
+            mb={6}
+            size="xl"
+            bgGradient="linear(to-r, brand.500, brand.600)"
+            bgClip="text"
+          >
+            Interview Diagnostic Test
+          </Heading>
+
+          <Tabs isFitted variant="enclosed" colorScheme="brand">
+            <TabList mb="1em">
+              <Tab onClick={() => setCurrentModule("coding")}>
+                Coding Challenge
+              </Tab>
+              <Tab onClick={() => setCurrentModule("design")}>
+                System Design
+              </Tab>
+              <Tab onClick={() => setCurrentModule("report")}>
+                Diagnostic Report
+              </Tab>
+              <Tab onClick={() => setCurrentModule("wizard")}>
+                Design Wizard
+              </Tab>
+              <Tab onClick={() => setCurrentModule("guided-prompts")}>
+                Guided Prompts
+              </Tab>
+              <Tab onClick={() => setCurrentModule("revision")}> Revision </Tab>
+              <Tab onClick={() => setCurrentModule("architecture-diagram")}> Diagram </Tab>
+
+            </TabList>
+
+            <TabPanels>
+              {/* Coding Challenge TabPanel - Remains the same */}
+              <TabPanel>
+                {/* ... (your existing code for coding challenges) */}
+                {loadingDefault ? (
+                  <Box textAlign="center" py={10}>
+                    <Spinner size="xl" color="brand.500" />
+                  </Box>
+                ) : (
+                  defaultProblem && <CodeChallenge problem={defaultProblem} />
+                )}
+                <ButtonGroup spacing={4} mt={4} justifyContent="center">
+                  <Button onClick={() => handleCodingLevelSelect("entry")}>
+                    Entry Level
+                  </Button>
+                  <Button
+                    onClick={() => handleCodingLevelSelect("intermediate")}
+                  >
+                    Intermediate
+                  </Button>
+                  <Button onClick={() => handleCodingLevelSelect("advanced")}>
+                    Advanced
+                  </Button>
+                </ButtonGroup>
+                {codingProblems.length > 0 && (
+                  <Box mt={4}>
+                    {codingProblems.map((problem) => (
+                      <CodeChallenge key={problem.id} problem={problem} />
+                    ))}
+                  </Box>
+                )}
+              </TabPanel>
+
+              {/* System Design TabPanel - Remains the same */}
+              <TabPanel>
+                <SystemDesign />
+              </TabPanel>
+
+              {/* Diagnostic Report TabPanel - Remains the same */}
+              <TabPanel>
+                <DiagnosticReportComponent />
+              </TabPanel>
+
+              {/* Design Wizard TabPanel - Remains the same */}
+              <TabPanel>
+                <WizardApp />
+              </TabPanel>
+
+              {/* Guided Prompts TabPanel - Now Dedicated */}
+              <TabPanel>
+                <GuidedPrompts onComplete={handleGuidedPromptsComplete} />
+              </TabPanel>
+
+              {/* Revision TabPanel - Now Dedicated */}
+              <TabPanel>
+                <RevisionSummary
+                  entries={revisionEntries}
+                  onSave={handleRevisionSave}
+                />
+              </TabPanel>
+
+              {/* Architecture Diagram TabPanel - Now Dedicated */}
+              <TabPanel>
+                <ArchitectureDiagram />
+                {/* <MinimalDiagram /> */}
+                
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </Box>
+      </Container>
+    </ChakraProvider>
   );
 };
 

@@ -1050,28 +1050,28 @@ const paletteItems: PaletteItem[] = [
   {
     category: "Load Balancers",
     type: "LoadBalancer_Elastic",
-    label: "Elastic Load Balancer",
+    label: "Elastic LB",
     details: "Dynamically scales (e.g., AWS ELB)",
     color: "rgb(255, 165, 0)",
   },
   {
     category: "Load Balancers",
     type: "LoadBalancer_Traditional",
-    label: "Traditional Load Balancer",
+    label: "Traditional LB",
     details: "Static load balancing (e.g., Nginx, HAProxy)",
     color: "rgb(138, 43, 226)",
   },
     {
         category: "Load Balancers",
         type: "LoadBalancer_Application",
-        label: "Application Load Balancer",
+        label: "Application LB",
         details: "Layer 7, routes based on content",
         color: "rgb(255, 99, 71)"
     },
       {
         category: "Load Balancers",
         type: "LoadBalancer_Network",
-        label: "Network Load Balancer",
+        label: "Network LB",
         details: "Layer 4, routes based on IP protocol data",
         color: "rgb(60, 179, 113)"
     },

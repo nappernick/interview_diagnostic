@@ -5,3 +5,7 @@
 uuid
 @projectstorm/react-diagrams-core
 @emotion/styled
+flask_sqlalchemy
+flasgger
+flask
+sqlalchemy-stubs
